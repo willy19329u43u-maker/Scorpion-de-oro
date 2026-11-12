@@ -1,0 +1,27 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Editores de código
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependencias (si se agregan después)
+node_modules/
+
+# Entornos virtuales
+.env
+.env.local
+.env.*.local
+
+# Coberturas de prueba
+coverage/
+
+# macOS
+__MACOSX/
