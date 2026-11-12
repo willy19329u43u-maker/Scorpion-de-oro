@@ -1,9 +1,7 @@
 /* ==================== ESCORPIÓN DE ORO - APP WEB ==================== */
-/* Aplicación de gestión interna del club: información, horarios, partidos,
-   puntuación y cronograma. Diseño: verdes fríos + dorado. */
+/* Sitio multipágina con base de datos local IndexedDB. */
 
 (() => {
-  /* ---------- Estado e datos iniciales ---------- */
   const STORAGE_KEY = 'escorpion_app_v1';
 
   const estadoInicial = {
@@ -47,63 +45,57 @@
     ]
   };
 
-  let estado = await window.escDb.load() || JSON.parse(JSON.stringify(estadoInicial));
+  let estado = null;
 
-  /* ---------- Elementos del DOM ---------- */
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  const btnTabs = $$('.tab-btn');
-  const panels = $$('.tab-panel');
-  const temaToggle = $('#themeToggle');
-  const navToggle = $('#navToggle');
-  const mainNav = $('#mainNav');
-  const entrenadorNombre = $('#entrenadorNombre');
-  const entrenadorBio = $('#entrenadorBio');
-  const membersList = $('#membersList');
-  const membersToggle = $('#membersToggle');
-  const clubGallery = $('#clubGallery');
-
   /* ---------- Inicialización ---------- */
   async function init() {
+    estado = await window.escDb.load() || JSON.parse(JSON.stringify(estadoInicial));
+
     renderMiembrosHeader();
     renderEntrenador();
     renderGaleria();
-    setupTabs();
+
     setupTheme();
     setupNavMobile();
-    renderHorarios();
-    renderPartidos();
-    renderPuntuacion();
-    renderCronograma();
-    setupBusquedaPartidos();
-    setupGuardarPartido();
-    setupCronogramaModal();
+
+    /* Renders condicionales según la página actual */
+    if ($('#horariosBody')) renderHorarios();
+    if ($('#partidosBody')) { renderPartidos(); setupBusquedaPartidos(); }
+    if ($('#puntuacionBody')) { renderPuntuacion(); setupGuardarPartido(); }
+    if ($('#cronogramaGrid')) { renderCronograma(); setupCronogramaModal(); }
+
     animarContadores();
     setupScrollAnim();
   }
 
-  /* ---------- Entrenador y miembros ---------- */
+  /* ---------- Entrenador y miembros (solo index) ---------- */
   function renderEntrenador() {
     const e = estado.entrenador;
-    if (entrenadorNombre) entrenadorNombre.textContent = e.nombre;
-    if (entrenadorBio) entrenadoraBioSetter(e.bio);
+    const nombreEl = $('#entrenadorNombre');
+    const bioEl = $('#entrenadorBio');
+    if (nombreEl) nombreEl.textContent = e.nombre;
+    if (bioEl) bioEl.textContent = e.bio;
   }
-  function entrenadoraBioSetter(bio) { entrenadorBio.textContent = bio; }
 
   function renderMiembrosHeader() {
-    if (!membersList) return;
-    membersList.innerHTML = estado.miembros.slice(0, 3).map(m =>
+    const list = $('#membersList');
+    const toggle = $('#membersToggle');
+    if (!list) return;
+    list.innerHTML = estado.miembros.slice(0, 3).map(m =>
       `<img src="${m.foto}" alt="${m.nombre}" class="member-avatar" title="${m.nombre} - ${m.rol}" onerror="this.style.display='none'">`
     ).join('');
-    if (membersToggle) {
-      membersToggle.textContent = estado.miembros.length > 3 ? `+${estado.miembros.length - 3}` : '';
-      membersToggle.style.display = estado.miembros.length > 3 ? 'flex' : 'none';
+    if (toggle) {
+      toggle.textContent = estado.miembros.length > 3 ? `+${estado.miembros.length - 3}` : '';
+      toggle.style.display = estado.miembros.length > 3 ? 'flex' : 'none';
     }
   }
 
   function renderGaleria() {
-    if (!clubGallery) return;
+    const gallery = $('#clubGallery');
+    if (!gallery) return;
     const fotos = [
       'WhatsApp Image 2026-11-12 at 16.20.45 (3).jpeg',
       'WhatsApp Image 2026-11-12 at 16.20.45 (4).jpeg',
@@ -111,47 +103,36 @@
       'WhatsApp Image 2026-11-12 at 16.20.46 (3).jpeg',
       'WhatsApp Image 2026-11-12 at 16.20.46.jpeg'
     ];
-    clubGallery.innerHTML = fotos.map(f =>
+    gallery.innerHTML = fotos.map(f =>
       `<div class="gallery-item"><img src="${f}" alt="Club" onerror="this.style.display='none'"></div>`
     ).join('');
   }
 
-  /* ---------- Tabs ---------- */
-  function setupTabs() {
-    btnTabs.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        btnTabs.forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        panels.forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-        const panel = $(`#panel-${tab}`);
-        if (panel) panel.classList.add('active');
-      });
-    });
-  }
-
-  /* ---------- Tema oscuro/claro ---------- */
+  /* ---------- Tema ---------- */
   function setupTheme() {
-    const dark = localStorage.getItem('escorpion_tema') === 'claro';
-    if (dark) document.documentElement.classList.add('tema-claro');
-    temaToggle.addEventListener('click', () => {
+    const toggle = $('#themeToggle');
+    if (!toggle) return;
+    const claroGuardado = localStorage.getItem('escorpion_tema') === 'claro';
+    if (claroGuardado) document.documentElement.classList.add('tema-claro');
+    toggle.textContent = claroGuardado ? '☀️' : '🌙';
+
+    toggle.addEventListener('click', () => {
       const claro = document.documentElement.classList.toggle('tema-claro');
       localStorage.setItem('escorpion_tema', claro ? 'claro' : 'oscuro');
-      temaToggle.textContent = claro ? '☀️' : '🌙';
+      toggle.textContent = claro ? '☀️' : '🌙';
     });
   }
 
   /* ---------- Menú móvil ---------- */
   function setupNavMobile() {
-    navToggle.addEventListener('click', () => {
-      const open = mainNav.classList.toggle('open');
-      navToggle.setAttribute('aria-expanded', open);
+    const toggle = $('#navToggle');
+    const nav = $('#mainNav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
     });
-    $$('.nav-link').forEach(link => link.addEventListener('click', () => mainNav.classList.remove('open')));
+    $$('.nav-link').forEach(link => link.addEventListener('click', () => nav.classList.remove('open')));
   }
 
   /* ---------- Horarios ---------- */
@@ -159,23 +140,17 @@
     const body = $('#horariosBody');
     if (!body) return;
     body.innerHTML = estado.horarios.map(h =>
-      `<tr>
-        <td><strong>${h.dia}</strong></td>
-        <td>${h.categoria}</td>
-        <td>${h.hora}</td>
-        <td>${h.lugar}</td>
-        <td>${h.entrenador}</td>
-      </tr>`
+      `<tr><td><strong>${h.dia}</strong></td><td>${h.categoria}</td><td>${h.hora}</td><td>${h.lugar}</td><td>${h.entrenador}</td></tr>`
     ).join('');
   }
 
-  /* ---------- Partidos finalizados ---------- */
+  /* ---------- Partidos ---------- */
   function renderPartidos() {
     const body = $('#partidosBody');
     const empty = $('#partidosEmpty');
     if (!body) return;
-    const filtro = $('#filtroEstado').value;
-    const busca = $('#buscarPartido').value.toLowerCase();
+    const filtro = $('#filtroEstado')?.value || 'todos';
+    const busca = $('#buscarPartido')?.value.toLowerCase() || '';
 
     let lista = estado.partidos.filter(p => {
       const coincideEstado = filtro === 'todos' || p.estado === filtro;
@@ -209,32 +184,22 @@
     $('#filtroEstado')?.addEventListener('change', renderPartidos);
   }
 
-  /* ---------- Puntuación y clasificación ---------- */
+  /* ---------- Puntuación ---------- */
   function calcularClasificacion() {
     const stats = {};
     const equipos = new Set();
-
     estado.partidos.forEach(p => {
       equipos.add(p.local);
       equipos.add(p.visitante);
       const [gLocal, gVisita] = p.resultado.split(' - ').map(Number);
       const ganoLocal = gLocal > gVisita;
-
-      [p.local, p.visitante].forEach(eq => {
-        if (!stats[eq]) stats[eq] = { PJ: 0, PG: 0, PP: 0, PF: 0, PC: 0 };
-      });
-
+      [p.local, p.visitante].forEach(eq => { if (!stats[eq]) stats[eq] = { PJ: 0, PG: 0, PP: 0, PF: 0, PC: 0 }; });
       stats[p.local].PJ++; stats[p.visitante].PJ++;
       stats[p.local].PF += gLocal; stats[p.local].PC += gVisita;
       stats[p.visitante].PF += gVisita; stats[p.visitante].PC += gLocal;
-
-      if (ganoLocal) {
-        stats[p.local].PG++; stats[p.visitante].PP++;
-      } else {
-        stats[p.visitante].PG++; stats[p.local].PP++;
-      }
+      if (ganoLocal) { stats[p.local].PG++; stats[p.visitante].PP++; }
+      else { stats[p.visitante].PG++; stats[p.local].PP++; }
     });
-
     return Array.from(equipos).map(eq => {
       const s = stats[eq];
       const dif = s.PF - s.PC;
@@ -251,11 +216,23 @@
       <tr>
         <td><strong>${i + 1}</strong></td>
         <td>${t.equipo}</td>
-        <td>${t.PJ}</td>
-        <td>${t.PG}</td>
-        <td>${t.PP}</td>
-        <td>${t.PF}</td>
-        <td>${t.PC}</td>
+        <td>${t.PJ}</td><td>${t.PG}</td><td>${t.PP}</td>
+        <td>${t.PF}</td><td>${t.PC}</td>
+        <td>${t.dif >= 0 ? '+' : ''}${t.dif}</td>
+        <td><strong>${t.pts}</strong></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPuntuacionBody(tabla) {
+    const body = $('#puntuacionBody');
+    if (!body) return;
+    body.innerHTML = tabla.map((t, i) => `
+      <tr>
+        <td><strong>${i + 1}</strong></td>
+        <td>${t.equipo}</td>
+        <td>${t.PJ}</td><td>${t.PG}</td><td>${t.PP}</td>
+        <td>${t.PF}</td><td>${t.PC}</td>
         <td>${t.dif >= 0 ? '+' : ''}${t.dif}</td>
         <td><strong>${t.pts}</strong></td>
       </tr>
@@ -270,33 +247,21 @@
       const ptsLocal = Number($('#ptsLocal').value);
       const ptsRival = Number($('#ptsRival').value);
       const comp = $('#nuevaCompeticion').value;
-
-      if (!rival || ptsLocal < 0 || ptsRival < 0) {
-        alert('Completa rival y puntos válidos.');
-        return;
-      }
+      if (!rival || ptsLocal < 0 || ptsRival < 0) { alert('Completa rival y puntos válidos.'); return; }
 
       const hoy = new Date();
       const fecha = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-
       estado.partidos.unshift({
-        fecha,
-        local: 'Escorpión de Oro',
-        visitante: rival,
-        resultado: `${ptsLocal} - ${ptsRival}`,
-        competicion: comp,
+        fecha, local: 'Escorpión de Oro', visitante: rival,
+        resultado: `${ptsLocal} - ${ptsRival}`, competicion: comp,
         estado: ptsLocal > ptsRival ? 'ganado' : 'perdido'
       });
-
       await window.escDb.save(estado);
-      $('#nuevoRival').value = '';
-      $('#ptsLocal').value = '';
-      $('#ptsRival').value = '';
+      $('#nuevoRival').value = ''; $('#ptsLocal').value = ''; $('#ptsRival').value = '';
       renderPartidos();
       renderPuntuacion();
     });
 
-    /* Ordenamiento de tabla puntuación */
     $$('#tablaPuntuacion th[data-sort]').forEach(th => {
       th.addEventListener('click', () => {
         const clave = th.textContent.trim().toLowerCase();
@@ -304,77 +269,40 @@
         const key = mapa[clave];
         if (!key) return;
         const tabla = calcularClasificacion();
-        tabla.sort((a, b) => {
-          if (typeof a[key] === 'string') return a[key].localeCompare(b[key]);
-          return b[key] - a[key];
-        });
+        tabla.sort((a, b) => typeof a[key] === 'string' ? a[key].localeCompare(b[key]) : b[key] - a[key]);
         renderPuntuacionBody(tabla);
       });
     });
-  }
-
-  function renderPuntuacionBody(tabla) {
-    const body = $('#puntuacionBody');
-    body.innerHTML = tabla.map((t, i) => `
-      <tr>
-        <td><strong>${i + 1}</strong></td>
-        <td>${t.equipo}</td>
-        <td>${t.PJ}</td>
-        <td>${t.PG}</td>
-        <td>${t.PP}</td>
-        <td>${t.PF}</td>
-        <td>${t.PC}</td>
-        <td>${t.dif >= 0 ? '+' : ''}${t.dif}</td>
-        <td><strong>${t.pts}</strong></td>
-      </tr>
-    `).join('');
   }
 
   /* ---------- Cronograma ---------- */
   function renderCronograma() {
     const grid = $('#cronogramaGrid');
     if (!grid) return;
-    const filtro = $('#filtroSemana').value;
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
+    const filtro = $('#filtroSemana')?.value || 'actual';
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     let lista = estado.cronograma;
     if (filtro === 'actual') {
       const fin = new Date(hoy); fin.setDate(hoy.getDate() + 6);
-      lista = estado.cronograma.filter(c => {
-        const f = new Date(c.fecha);
-        return f >= hoy && f <= fin;
-      });
+      lista = estado.cronograma.filter(c => { const f = new Date(c.fecha); return f >= hoy && f <= fin; });
     } else {
       const inicio = new Date(hoy); inicio.setDate(hoy.getDate() + 7);
       const fin = new Date(inicio); fin.setDate(inicio.getDate() + 6);
-      lista = estado.cronograma.filter(c => {
-        const f = new Date(c.fecha);
-        return f >= inicio && f <= fin;
-      });
+      lista = estado.cronograma.filter(c => { const f = new Date(c.fecha); return f >= inicio && f <= fin; });
     }
-
     lista.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
     if (lista.length === 0) {
       grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--texto-suave);padding:2rem">No hay actividades programadas.</div>';
       return;
     }
-
     grid.innerHTML = lista.map(c => {
       const f = new Date(c.fecha);
       const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
-      return `
-        <div class="cronograma-item tipo-${c.tipo}">
-          <div class="cronograma-tipo tipo-${c.tipo}">${c.tipo}</div>
-          <div class="cronograma-titulo">${c.titulo}</div>
-          <div class="cronograma-meta">
-            <span>${f.toLocaleDateString('es-ES', opciones)}</span>
-            <span>${c.hora}</span>
-            <span>${c.lugar}</span>
-          </div>
-        </div>
-      `;
+      return `<div class="cronograma-item tipo-${c.tipo}">
+        <div class="cronograma-tipo tipo-${c.tipo}">${c.tipo}</div>
+        <div class="cronograma-titulo">${c.titulo}</div>
+        <div class="cronograma-meta"><span>${f.toLocaleDateString('es-ES', opciones)}</span><span>${c.hora}</span><span>${c.lugar}</span></div>
+      </div>`;
     }).join('');
   }
 
@@ -383,12 +311,13 @@
     const modal = $('#modalAgendar');
     const cerrar = $('#cerrarModal');
     const form = $('#formAgendar');
+    if (!btn || !modal || !cerrar || !form) return;
 
-    btn?.addEventListener('click', () => { modal.classList.add('active'); });
-    cerrar?.addEventListener('click', () => { modal.classList.remove('active'); });
-    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+    btn.addEventListener('click', () => modal.classList.add('active'));
+    cerrar.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-    form?.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       estado.cronograma.push({
         titulo: $('#actTitulo').value.trim(),
@@ -402,11 +331,10 @@
       modal.classList.remove('active');
       renderCronograma();
     });
-
     $('#filtroSemana')?.addEventListener('change', renderCronograma);
   }
 
-  /* ---------- Contadores animados ---------- */
+  /* ---------- Contadores ---------- */
   function animarContadores() {
     $$('[data-target]').forEach(el => {
       const target = +el.dataset.target;
@@ -420,23 +348,15 @@
     });
   }
 
-  /* ---------- Animaciones al scroll ---------- */
+  /* ---------- Scroll ---------- */
   function setupScrollAnim() {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
     }, { threshold: 0.1 });
-
-    $$('.card, .hero-content, .value').forEach(el => {
-      el.classList.add('reveal');
-      observer.observe(el);
-    });
+    $$('.card, .hero-content, .value').forEach(el => { el.classList.add('reveal'); observer.observe(el); });
   }
 
-  /* Tema claro: ajustar variables simples */
+  /* Tema claro estilos extras */
   const style = document.createElement('style');
   style.textContent = `
     .tema-claro { --fondo: #f8fafc; --fondo-tarjeta: #ffffff; --fondo-input: #f1f5f9; --texto: #0f172a; --texto-suave: #475569; --borde: #e2e8f0; --sombra: 0 10px 30px -10px rgba(0,0,0,0.08); }
@@ -447,6 +367,5 @@
   `;
   document.head.appendChild(style);
 
-  /* Arrancar */
   document.addEventListener('DOMContentLoaded', init);
 })();

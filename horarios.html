@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horarios | Escorpión de Oro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="header" id="mainHeader">
+    <div class="container header-inner">
+      <div class="logo">
+        <img src="WhatsApp Image 2026-11-12 at 16.20.43 (1).jpeg" alt="Logo Escorpión de Oro" onerror="this.style.display='none'"/>
+        <div class="logo-text">
+          <span class="logo-main">ESCORPIÓN DE ORO</span>
+          <span class="logo-sub">Club de Baloncesto</span>
+        </div>
+      </div>
+      <div class="club-members" id="clubMembers">
+        <span class="members-label">Plantilla</span>
+        <div class="members-list" id="membersList"></div>
+        <button class="members-toggle" id="membersToggle">+3</button>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+      <nav class="nav" id="mainNav">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="informacion.html">Información del Club</a></li>
+          <li><a class="nav-link active" href="horarios.html">Horarios</a></li>
+          <li><a class="nav-link" href="partidos.html">Partidos Finalizados</a></li>
+          <li><a class="nav-link" href="puntuacion.html">Puntuación</a></li>
+          <li><a class="nav-link" href="cronograma.html">Cronograma</a></li>
+        </ul>
+        <div class="nav-extra"><button class="btn-dark" id="themeToggle">🌙</button></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding:3rem 1.5rem;">
+    <div class="panel-grid">
+      <div class="card">
+        <h2>Horarios de Entrenamiento</h2>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Día</th><th>Categoría</th><th>Hora</th><th>Lugar</th><th>Entrenador</th></tr></thead>
+            <tbody id="horariosBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Próximos Eventos</h2>
+        <div class="events-list" id="proximosEventos"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand"><span class="logo-main">ESCORPIÓN DE ORO</span><p>Pasión y orgullo en cada jugada.</p></div>
+      <div class="footer-copy"><p>© 2026 Escorpión de Oro. Todos los derechos reservados.</p></div>
+    </div>
+  </footer>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

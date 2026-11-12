@@ -22,7 +22,6 @@
         </div>
       </div>
 
-      <!-- Miembros del club en el header -->
       <div class="club-members" id="clubMembers">
         <span class="members-label">Plantilla</span>
         <div class="members-list" id="membersList"></div>
@@ -30,18 +29,17 @@
       </div>
 
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
       </button>
 
       <nav class="nav" id="mainNav">
         <ul class="nav-list">
-          <li><button class="nav-link tab-btn active" data-tab="info">Información del Club</button></li>
-          <li><button class="nav-link tab-btn" data-tab="horarios">Horarios</button></li>
-          <li><button class="nav-link tab-btn" data-tab="partidos">Partidos Finalizados</button></li>
-          <li><button class="nav-link tab-btn" data-tab="puntuacion">Puntuación</button></li>
-          <li><button class="nav-link tab-btn" data-tab="cronograma">Cronograma</button></li>
+          <li><a class="nav-link active" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="informacion.html">Información del Club</a></li>
+          <li><a class="nav-link" href="horarios.html">Horarios</a></li>
+          <li><a class="nav-link" href="partidos.html">Partidos Finalizados</a></li>
+          <li><a class="nav-link" href="puntuacion.html">Puntuación</a></li>
+          <li><a class="nav-link" href="cronograma.html">Cronograma</a></li>
         </ul>
         <div class="nav-extra">
           <button class="btn-dark" id="themeToggle" aria-label="Cambiar tema">🌙</button>
@@ -50,243 +48,26 @@
     </div>
   </header>
 
-  <!-- ==================== HERO ==================== -->
+  <!-- ==================== HERO / INICIO ==================== -->
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="hero-badge">Entrenador Principal</div>
       <h1 class="hero-title">Coach <span id="entrenadorNombre">Mateo Rivas</span></h1>
       <p class="hero-text" id="entrenadorBio">
-        Estratega del baloncesto con 12 años de experiencia dirigiendo plantillas élite. 
-        Especialista en formación de líderes en la cancha y desarrollo de juego ofensivo rápido.
+        Estratega del baloncesto con 12 años de experiencia dirigiendo plantillas élite.
       </p>
       <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-number" data-target="12">0</span>
-          <span class="stat-label">Temporadas</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number" data-target="8">0</span>
-          <span class="stat-label">Títulos</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number" data-target="240">0</span>
-          <span class="stat-label">Partidos dirigidos</span>
-        </div>
+        <div class="stat"><span class="stat-number" data-target="12">0</span><span class="stat-label">Temporadas</span></div>
+        <div class="stat"><span class="stat-number" data-target="8">0</span><span class="stat-label">Títulos</span></div>
+        <div class="stat"><span class="stat-number" data-target="240">0</span><span class="stat-label">Partidos dirigidos</span></div>
       </div>
       <img src="WhatsApp Image 2026-11-12 at 16.20.44 (3).jpeg" alt="Entrenador" class="hero-img" onerror="this.style.display='none'"/>
+      <div class="hero-actions" style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+        <a href="informacion.html" class="btn-guardar">Ver Club</a>
+        <a href="horarios.html" class="btn-guardar">Ver Horarios</a>
+      </div>
     </div>
   </section>
-
-  <!-- ==================== TABS ==================== -->
-  <main class="tabs-container" id="tabsContainer">
-    <div class="container">
-      <div class="tab-bar" role="tablist" aria-label="Navegación por secciones">
-        <button class="tab-btn active" data-tab="info" role="tab" aria-selected="true">Información del Club</button>
-        <button class="tab-btn" data-tab="horarios" role="tab" aria-selected="false">Horarios</button>
-        <button class="tab-btn" data-tab="partidos" role="tab" aria-selected="false">Partidos Finalizados</button>
-        <button class="tab-btn" data-tab="puntuacion" role="tab" aria-selected="false">Puntuación</button>
-        <button class="tab-btn" data-tab="cronograma" role="tab" aria-selected="false">Cronograma</button>
-      </div>
-
-      <!-- PANEL: Información del Club -->
-      <section class="tab-panel active" id="panel-info" role="tabpanel">
-        <div class="panel-grid">
-          <div class="card info-card">
-            <h2>Sobre el Club</h2>
-            <p>
-              <strong>Escorpión de Oro</strong> no es solo un club de baloncesto; es una comunidad de atletas 
-              que definen el estándar de la excelencia. Nuestra misión es elevar el deporte a través de la 
-              disciplina técnica y el espíritu de lucha sin límites. Formamos líderes en la cancha impulsando 
-              el crecimiento del baloncesto en nuestra región con una visión industrial y profesional.
-            </p>
-            <ul class="info-list">
-              <li><strong>Nombre:</strong> Escorpión de Oro</li>
-              <li><strong>Deporte:</strong> Baloncesto</li>
-              <li><strong>Sede:</strong> Polideportivo Escorpión, Sevilla, España</li>
-              <li><strong>Fundación:</strong> 2010</li>
-              <li><strong>Entrenador:</strong> Coach Mateo Rivas</li>
-            </ul>
-            <div class="social">
-              <a href="#" title="Facebook">Facebook</a>
-              <a href="#" title="Instagram">Instagram</a>
-              <a href="#" title="YouTube">YouTube</a>
-              <a href="#" title="X">X</a>
-              <a href="#" title="LinkedIn">LinkedIn</a>
-              <a href="#" title="TikTok">TikTok</a>
-            </div>
-          </div>
-
-          <div class="card gallery-card">
-            <h2>Galería del Club</h2>
-            <div class="gallery" id="clubGallery"></div>
-          </div>
-
-          <div class="card values-card">
-            <h2>Valores Héroes y Élite</h2>
-            <div class="values-grid">
-              <div class="value">
-                <span class="value-num">01</span>
-                <h3>Estadísticas</h3>
-                <p>Rendimiento de cada jugador con datos técnicos detallados.</p>
-              </div>
-              <div class="value">
-                <span class="value-num">02</span>
-                <h3>Calendario</h3>
-                <p>Horarios oficiales de partidos y eventos del club.</p>
-              </div>
-              <div class="value">
-                <span class="value-num">03</span>
-                <h3>Noticias</h3>
-                <p>Información exclusiva del equipo y resultados recientes.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PANEL: Horarios -->
-      <section class="tab-panel" id="panel-horarios" role="tabpanel">
-        <div class="panel-grid">
-          <div class="card">
-            <h2>Horarios de Entrenamiento</h2>
-            <div class="table-wrapper">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Día</th>
-                    <th>Categoría</th>
-                    <th>Hora</th>
-                    <th>Lugar</th>
-                    <th>Entrenador</th>
-                  </tr>
-                </thead>
-                <tbody id="horariosBody"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="card">
-            <h2>Próximos Eventos</h2>
-            <div class="events-list" id="proximosEventos"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PANEL: Partidos Finalizados -->
-      <section class="tab-panel" id="panel-partidos" role="tabpanel">
-        <div class="panel-grid">
-          <div class="card">
-            <div class="panel-header">
-              <h2>Rol de Partidos Finalizados</h2>
-              <div class="search-filtros">
-                <input type="text" id="buscarPartido" placeholder="Buscar rival..." />
-                <select id="filtroEstado">
-                  <option value="todos">Todos</option>
-                  <option value="ganados">Ganados</option>
-                  <option value="perdidos">Perdidos</option>
-                </select>
-              </div>
-            </div>
-            <div class="table-wrapper">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Local</th>
-                    <th>Resultado</th>
-                    <th>Visitante</th>
-                    <th>Competición</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody id="partidosBody"></tbody>
-              </table>
-            </div>
-            <p class="empty-msg" id="partidosEmpty" style="display:none">No se encontraron partidos.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- PANEL: Puntuación -->
-      <section class="tab-panel" id="panel-puntuacion" role="tabpanel">
-        <div class="panel-grid">
-          <div class="card wide-card">
-            <h2>Tabla de Puntuación y Clasificación</h2>
-            <div class="score-controls">
-              <input type="text" id="nuevoRival" placeholder="Nombre del rival" />
-              <input type="number" id="ptsLocal" placeholder="Puntos Escorpión" min="0" />
-              <input type="number" id="ptsRival" placeholder="Puntos Rival" min="0" />
-              <select id="nuevaCompeticion">
-                <option value="Liga">Liga</option>
-                <option value="Amistoso">Amistoso</option>
-                <option value="Playoff">Playoff</option>
-              </select>
-              <button class="btn-guardar" id="guardarPartido">Registrar Partido</button>
-            </div>
-            <div class="table-wrapper">
-              <table class="data-table" id="tablaPuntuacion">
-                <thead>
-                  <tr>
-                    <th data-sort>Posición</th>
-                    <th data-sort>Equipo</th>
-                    <th data-sort>PJ</th>
-                    <th data-sort>PG</th>
-                    <th data-sort>PP</th>
-                    <th data-sort>PF</th>
-                    <th data-sort>PC</th>
-                    <th data-sort>Dif.</th>
-                    <th data-sort>Pts</th>
-                  </tr>
-                </thead>
-                <tbody id="puntuacionBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PANEL: Cronograma -->
-      <section class="tab-panel" id="panel-cronograma" role="tabpanel">
-        <div class="panel-grid">
-          <div class="card wide-card">
-            <h2>Cronograma de Actividades y Reuniones</h2>
-            <div class="cronograma-controls">
-              <select id="filtroSemana">
-                <option value="actual">Esta semana</option>
-                <option value="siguiente">Siguiente semana</option>
-              </select>
-              <button class="btn-agendar" id="agendarBtn">+ Agendar Actividad</button>
-            </div>
-            <div class="cronograma-grid" id="cronogramaGrid"></div>
-            <div class="modal" id="modalAgendar">
-              <div class="modal-content">
-                <span class="cerrar" id="cerrarModal">&times;</span>
-                <h3>Nueva Actividad</h3>
-                <form id="formAgendar">
-                  <label>Título</label>
-                  <input type="text" id="actTitulo" required />
-                  <label>Tipo</label>
-                  <select id="actTipo">
-                    <option value="Entrenamiento">Entrenamiento</option>
-                    <option value="Reunión">Reunión</option>
-                    <option value="Evento">Evento</option>
-                    <option value="Partido">Partido</option>
-                  </select>
-                  <label>Fecha</label>
-                  <input type="date" id="actFecha" required />
-                  <label>Hora</label>
-                  <input type="time" id="actHora" required />
-                  <label>Lugar</label>
-                  <input type="text" id="actLugar" placeholder="Polideportivo Escorpión" />
-                  <button type="submit" class="btn-guardar">Guardar</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  </main>
 
   <!-- ==================== FOOTER ==================== -->
   <footer class="footer">
@@ -297,7 +78,7 @@
       </div>
       <div class="footer-copy">
         <p>© 2026 Escorpión de Oro. Todos los derechos reservados.</p>
-        <p>Sitio construido para gestión interna del club — sin sección de compra ni entradas.</p>
+        <p>Sitio de gestión interna del club — sin sección de compra ni entradas.</p>
       </div>
     </div>
   </footer>
