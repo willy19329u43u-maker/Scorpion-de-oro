@@ -174,8 +174,6 @@ async function dbClearSession() {
 /* ---------- Inicialización de usuarios por defecto ---------- */
 async function dbInitDefaultUsers() {
   const existentes = await dbGetUsers();
-  if (existentes.length > 0) return;
-
   const defaultUsers = [
     {
       username: 'coach',
@@ -206,7 +204,15 @@ async function dbInitDefaultUsers() {
     }
   ];
 
-  for (const u of defaultUsers) await dbSaveUser(u);
+  for (const u of defaultUsers) {
+    const yaExiste = existentes.find(e => e.email === u.email || e.username === u.username);
+    if (!yaExiste) {
+      await dbSaveUser(u);
+    } else {
+      /* Actualizar usuario existente para asegurar que tenga username */
+      await dbSaveUser({ ...yaExiste, ...u });
+    }
+  }
 }
 
 /* Exportación */
