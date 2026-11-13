@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Perfil | Escorpión de Oro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="header" id="mainHeader">
+    <div class="container header-inner">
+      <div class="logo">
+        <img src="logo.png" alt="Logo Escorpión de Oro" onerror="this.style.display='none'"/>
+        <div class="logo-text">
+          <span class="logo-main">ESCORPIÓN DE ORO</span>
+          <span class="logo-sub">Club de Baloncesto</span>
+        </div>
+      </div>
+      <div class="nav-extra">
+        <button class="btn-dark" id="btnCerrarSesion">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding:3rem 1.5rem;">
+    <div class="panel-grid">
+      <div class="card wide-card">
+        <div class="profile-header">
+          <img id="profileFoto" src="" alt="Foto de perfil" class="profile-foto" onerror="this.style.display='none'"/>
+          <div class="profile-info">
+            <h2 id="profileNombre">Usuario</h2>
+            <span class="profile-rol" id="profileRol">Rol</span>
+            <p id="profileEmail">email@ejemplo.com</p>
+          </div>
+          <button class="btn-guardar" id="btnCerrarSesionPerfil">Cerrar Sesión</button>
+        </div>
+        <div class="profile-bio">
+          <h3>Sobre mí</h3>
+          <p id="profileBio">No hay información disponible.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Estadísticas Rápidas</h3>
+        <div class="hero-stats" style="justify:flex-start; gap:1.5rem;">
+          <div class="stat"><span class="stat-number" id="statPartidos">0</span><span class="stat-label">Partidos registrados</span></div>
+          <div class="stat"><span class="stat-number" id="statGanados">0</span><span class="stat-label">Partidos ganados</span></div>
+          <div class="stat"><span class="stat-number" id="statCronograma">0</span><span class="stat-label">Actividades agendadas</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand"><span class="logo-main">ESCORPIÓN DE ORO</span><p>Pasión y orgullo en cada jugada.</p></div>
+      <div class="footer-copy"><p>© 2026 Escorpión de Oro. Todos los derechos reservados.</p></div>
+    </div>
+  </footer>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('btnCerrarSesion')?.addEventListener('click', async () => {
+      await window.escDb.clearSession();
+      window.location.href = 'login.html';
+    });
+    document.getElementById('btnCerrarSesionPerfil')?.addEventListener('click', async () => {
+      await window.escDb.clearSession();
+      window.location.href = 'login.html';
+    });
+
+    async function cargarPerfil() {
+      const usuario = await window.escDb.getSession();
+      if (!usuario) { window.location.href = 'login.html'; return; }
+
+      document.getElementById('profileNombre').textContent = usuario.nombre;
+      document.getElementById('profileRol').textContent = usuario.rol === 'coach' ? 'Entrenador (Coach)' : 'Miembro del club';
+      document.getElementById('profileRol').className = 'profile-rol ' + usuario.rol;
+      document.getElementById('profileEmail').textContent = usuario.email;
+      document.getElementById('profileBio').textContent = usuario.bio || 'Sin descripción.';
+      document.getElementById('profileFoto').src = usuario.foto || 'logo.png';
+
+      const estado = await window.escDb.load();
+      if (estado) {
+        document.getElementById('statPartidos').textContent = estado.partidos ? estado.partidos.length : 0;
+        const ganados = estado.partidos ? estado.partidos.filter(p => p.estado === 'ganado').length : 0;
+        document.getElementById('statGanados').textContent = ganados;
+        document.getElementById('statCronograma').textContent = estado.cronograma ? estado.cronograma.length : 0;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarPerfil);
+  </script>
+</body>
+</html>

@@ -1,8 +1,10 @@
 /* ==================== ESCORPIÓN DE ORO - APP WEB ==================== */
-/* Sitio multipágina con base de datos local IndexedDB. */
+/* Sitio multipágina con autenticación, roles (coach/miembro) y base de datos IndexedDB. */
 
 (() => {
   const STORAGE_KEY = 'escorpion_app_v1';
+  const paginaActual = window.location.pathname.split('/').pop() || 'index.html';
+  const esLogin = paginaActual === 'login.html';
 
   const estadoInicial = {
     entrenador: {
@@ -46,37 +48,103 @@
   };
 
   let estado = null;
+  let usuario = null;
 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+  /* ---------- Toast / Notificación ---------- */
+  function toast(mensaje, tipo = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${tipo}`;
+    toast.textContent = mensaje;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  /* ---------- Verificación de sesión ---------- */
+  async function verificarSesion() {
+    usuario = await window.escDb.getSession();
+
+    if (esLogin) {
+      if (usuario) {
+        window.location.href = 'index.html';
+        return;
+      }
+      await window.escDb.initDefaultUsers();
+      return;
+    }
+
+    if (!usuario) {
+      toast('Debes iniciar sesión para continuar', 'warning');
+      setTimeout(() => { window.location.href = 'login.html'; }, 800);
+      return;
+    }
+
+    await window.escDb.initDefaultUsers();
+    renderHeaderSesion();
+  }
+
+  /* ---------- Header con sesión ---------- */
+  function renderHeaderSesion() {
+    const navExtra = $('#mainNav .nav-extra');
+    const btnCerrar = $('#btnCerrarSesion');
+    if (navExtra && !btnCerrar) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-dark';
+      btn.id = 'btnCerrarSesion';
+      btn.textContent = 'Perfil';
+      btn.title = 'Mi perfil';
+      navExtra.appendChild(btn);
+      btn.addEventListener('click', () => { window.location.href = 'profile.html'; });
+    }
+    const btnCerrarPerfil = $('#btnCerrarSesionPerfil') || $('#btnCerrarSesion');
+    if (btnCerrarPerfil && btnCerrarPerfil.textContent.includes('Cerrar')) {
+      btnCerrarPerfil.addEventListener('click', async () => {
+        await window.escDb.clearSession();
+        toast('Sesión cerrada');
+        setTimeout(() => { window.location.href = 'login.html'; }, 600);
+      });
+    }
+    if (usuario && $('#entrenadorNombre')) {
+      $('#entrenadorNombre').textContent = usuario.nombre;
+    }
+  }
+
   /* ---------- Inicialización ---------- */
   async function init() {
+    await verificarSesion();
+    if (!usuario && !esLogin) return;
+
     estado = await window.escDb.load() || JSON.parse(JSON.stringify(estadoInicial));
 
-    renderMiembrosHeader();
     renderEntrenador();
+    renderMiembrosHeader();
     renderGaleria();
 
     setupTheme();
     setupNavMobile();
 
-    /* Renders condicionales según la página actual */
     if ($('#horariosBody')) renderHorarios();
     if ($('#partidosBody')) { renderPartidos(); setupBusquedaPartidos(); }
-    if ($('#puntuacionBody')) { renderPuntuacion(); setupGuardarPartido(); }
+    if ($('#puntuacionBody')) { renderPuntuacion(); setupGuardarPartido(); setupExportar(); }
     if ($('#cronogramaGrid')) { renderCronograma(); setupCronogramaModal(); }
+    if ($('#formAgendar')) setupCronogramaModal();
 
     animarContadores();
     setupScrollAnim();
   }
 
-  /* ---------- Entrenador y miembros (solo index) ---------- */
+  /* ---------- Entrenador y miembros ---------- */
   function renderEntrenador() {
     const e = estado.entrenador;
     const nombreEl = $('#entrenadorNombre');
     const bioEl = $('#entrenadorBio');
-    if (nombreEl) nombreEl.textContent = e.nombre;
+    if (nombreEl) nombreEl.textContent = usuario ? usuario.nombre : e.nombre;
     if (bioEl) bioEl.textContent = e.bio;
   }
 
@@ -115,7 +183,6 @@
     const claroGuardado = localStorage.getItem('escorpion_tema') === 'claro';
     if (claroGuardado) document.documentElement.classList.add('tema-claro');
     toggle.textContent = claroGuardado ? '☀️' : '🌙';
-
     toggle.addEventListener('click', () => {
       const claro = document.documentElement.classList.toggle('tema-claro');
       localStorage.setItem('escorpion_tema', claro ? 'claro' : 'oscuro');
@@ -260,6 +327,7 @@
       $('#nuevoRival').value = ''; $('#ptsLocal').value = ''; $('#ptsRival').value = '';
       renderPartidos();
       renderPuntuacion();
+      toast('Partido registrado correctamente', 'success');
     });
 
     $$('#tablaPuntuacion th[data-sort]').forEach(th => {
@@ -273,6 +341,28 @@
         renderPuntuacionBody(tabla);
       });
     });
+  }
+
+  /* ---------- Exportar datos ---------- */
+  function setupExportar() {
+    const btnExportar = document.createElement('button');
+    btnExportar.className = 'btn-dark';
+    btnExportar.textContent = '📥 Exportar Datos';
+    btnExportar.style.marginLeft = '1rem';
+    btnExportar.addEventListener('click', async () => {
+      const datos = await window.escDb.load();
+      if (!datos) { toast('No hay datos para exportar', 'warning'); return; }
+      const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `escorpion_datos_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Datos exportados correctamente', 'success');
+    });
+    const scoreControls = $('#tablaPuntuacion')?.parentElement?.previousElementSibling;
+    if (scoreControls) scoreControls.appendChild(btnExportar);
   }
 
   /* ---------- Cronograma ---------- */
@@ -330,6 +420,7 @@
       form.reset();
       modal.classList.remove('active');
       renderCronograma();
+      toast('Actividad agendada', 'success');
     });
     $('#filtroSemana')?.addEventListener('change', renderCronograma);
   }
@@ -364,6 +455,33 @@
     .tema-claro .data-table tr:hover { background: rgba(15, 118, 110, 0.08); }
     .tema-claro .cronograma-item { background: #f1f5f9; color: #0f172a; }
     .tema-claro .social a, .tema-claro .value { background: #f1f5f9; color: #0f172a; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px; color: #fff; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 3000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-info { background: var(--verde-frio); }
+    .toast-success { background: #10b981; }
+    .toast-warning { background: #f59e0b; }
+    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--fondo); padding: 2rem; }
+    .login-card { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 2.5rem; max-width: 400px; width: 100%; box-shadow: var(--sombra); }
+    .login-header { text-align: center; margin-bottom: 2rem; }
+    .login-logo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--dorado); margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto; }
+    .login-header h1 { font-family: 'Playfair Display', serif; color: var(--dorado); margin-bottom: 0.5rem; }
+    .login-header p { color: var(--texto-suave); font-size: 0.9rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: var(--texto-suave); font-size: 0.9rem; }
+    .form-group input { width: 100%; background: var(--fondo-input); border: 1px solid var(--borde); color: var(--texto); padding: 0.75rem 1rem; border-radius: 8px; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
+    .btn-login { width: 100%; }
+    .login-info { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--borde); }
+    .login-info h3 { font-size: 0.95rem; color: var(--dorado); margin-bottom: 0.75rem; }
+    .login-info ul { color: var(--texto-suave); font-size: 0.85rem; margin-bottom: 1rem; padding-left: 1.2rem; }
+    .login-info li { margin-bottom: 0.4rem; }
+    .profile-header { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; }
+    .profile-foto { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--dorado); object-fit: cover; flex-shrink: 0; }
+    .profile-info { flex: 1; }
+    .profile-info h2 { margin-bottom: 0.3rem; }
+    .profile-rol { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.8rem; }
+    .profile-rol.coach { background: rgba(212, 175, 55, 0.15); color: var(--dorado); border: 1px solid rgba(212, 175, 55, 0.3); }
+    .profile-rol.miembro { background: rgba(15, 118, 110, 0.15); color: var(--verde-frio-claro); border: 1px solid rgba(20, 184, 166, 0.3); }
+    .profile-bio { padding: 1rem; background: var(--fondo-input); border-radius: 8px; border: 1px solid var(--borde); }
   `;
   document.head.appendChild(style);
 
