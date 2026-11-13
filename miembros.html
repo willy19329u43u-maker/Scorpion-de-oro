@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plantilla | Escorpión de Oro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+    .form-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="mainHeader">
+    <div class="container header-inner">
+      <div class="logo">
+        <img src="logo.png" alt="Logo Escorpión de Oro" onerror="this.style.display='none'"/>
+        <div class="logo-text">
+          <span class="logo-main">ESCORPIÓN DE ORO</span>
+          <span class="logo-sub">Club de Baloncesto</span>
+        </div>
+      </div>
+      <div class="nav-extra">
+        <button class="btn-dark" id="btnPerfilMiembros">Perfil</button>
+        <button class="btn-dark" id="btnSalirMiembros">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding:3rem 1.5rem;">
+    <div class="panel-header" style="margin-bottom:1.5rem; align-items:center;">
+      <h2>Plantilla del Club</h2>
+      <button class="btn-guardar" id="btnNuevoMiembro" style="padding:0.55rem 1.1rem; font-size:0.9rem; margin-left:auto;">+ Agregar Jugador</button>
+    </div>
+
+    <div class="card wide-card">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Posición</th>
+              <th>Número</th>
+              <th>Partidos</th>
+              <th>Puntos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="miembrosBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Agregar/Editar Miembro -->
+    <div class="modal" id="modalMiembro">
+      <div class="modal-content">
+        <span class="cerrar" id="cerrarModalMiembro">&times;</span>
+        <h3 id="modalMiembroTitulo">Agregar Jugador</h3>
+        <form id="formMiembro">
+          <input type="hidden" id="miembroIdx" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre completo</label>
+              <input type="text" id="mNombre" required placeholder="Juan Pérez" />
+            </div>
+            <div class="form-group">
+              <label>Posición</label>
+              <select id="mPosicion" required>
+                <option value="Base">Base</option>
+                <option value="Escolta">Escolta</option>
+                <option value="Alero">Alero</option>
+                <option value="Ala-Pívot">Ala-Pívot</option>
+                <option value="Pívot">Pívot</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Número de camiseta</label>
+              <input type="number" id="mNumero" required min="0" max="99" placeholder="23" />
+            </div>
+            <div class="form-group">
+              <label>Foto (nombre de archivo)</label>
+              <input type="text" id="mFoto" placeholder="logo.png" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Apodo / Bio corta</label>
+            <input type="text" id="mBio" placeholder="El Base Veloz" />
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-dark" id="btnCancelarMiembro">Cancelar</button>
+            <button type="submit" class="btn-guardar">Guardar Jugador</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand"><span class="logo-main">ESCORPIÓN DE ORO</span><p>Pasión y orgullo en cada jugada.</p></div>
+      <div class="footer-copy"><p>© 2026 Escorpión de Oro. Todos los derechos reservados.</p></div>
+    </div>
+  </footer>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let idxEditando = null;
+
+    async function cargarMiembros() {
+      const estado = await window.escDb.load();
+      const body = document.getElementById('miembrosBody');
+      const sesion = await window.escDb.getSession();
+      const esCoach = sesion && sesion.rol === 'coach';
+      if (!estado || !estado.miembros) { body.innerHTML = ''; return; }
+
+      body.innerHTML = estado.miembros.map((m, i) => `
+        <tr>
+          <td><img src="${m.foto || 'logo.png'}" class="member-avatar" onerror="this.src='logo.png'; this.style.display='block';"></td>
+          <td><strong>${m.nombre}</strong>${m.apodo ? '<br><small style="color:var(--texto-suave); font-size:0.75rem;">'+m.apodo+'</small>' : ''}</td>
+          <td>${m.posicion || 'Sin asignar'}</td>
+          <td>${m.numero || '-'}</td>
+          <td>${m.partidos || 0}</td>
+          <td>${m.puntos || 0}</td>
+          <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${esCoach ? `
+              <button class="btn-guardar" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="appEditarMiembro(${i})">Editar</button>
+              <button class="btn-dark" style="padding:0.3rem 0.6rem; font-size:0.8rem; background:transparent; color:#ef4444; border-color:#ef4444;" onclick="appEliminarMiembro(${i})">Eliminar</button>
+            ` : '<span style="color:var(--texto-suave); font-size:0.75rem;">Solo Coach</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    window.appEditarMiembro = async (i) => {
+      const estado = await window.escDb.load();
+      const m = estado.miembros[i];
+      idxEditando = i;
+      document.getElementById('modalMiembroTitulo').textContent = 'Editar Jugador';
+      document.getElementById('miembroIdx').value = i;
+      document.getElementById('mNombre').value = m.nombre || '';
+      document.getElementById('mPosicion').value = m.posicion || 'Base';
+      document.getElementById('mNumero').value = m.numero || '';
+      document.getElementById('mFoto').value = m.foto || '';
+      document.getElementById('mBio').value = m.apodo || '';
+      document.getElementById('modalMiembro').classList.add('active');
+    };
+
+    window.appEliminarMiembro = async (i) => {
+      if (!confirm('¿Eliminar este jugador de la plantilla?')) return;
+      const estado = await window.escDb.load();
+      estado.miembros.splice(i, 1);
+      await window.escDb.save(estado);
+      cargarMiembros();
+    };
+
+    document.getElementById('btnNuevoMiembro')?.addEventListener('click', () => {
+      idxEditando = null;
+      document.getElementById('modalMiembroTitulo').textContent = 'Agregar Jugador';
+      document.getElementById('formMiembro').reset();
+      document.getElementById('miembroIdx').value = '';
+      document.getElementById('modalMiembro').classList.add('active');
+    });
+
+    document.getElementById('cerrarModalMiembro')?.addEventListener('click', () => {
+      document.getElementById('modalMiembro').classList.remove('active');
+    });
+    document.getElementById('btnCancelarMiembro')?.addEventListener('click', () => {
+      document.getElementById('modalMiembro').classList.remove('active');
+    });
+    document.getElementById('modalMiembro')?.addEventListener('click', (e) => { if (e.target === document.getElementById('modalMiembro')) document.getElementById('modalMiembro').classList.remove('active'); });
+
+    document.getElementById('formMiembro')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const estado = await window.escDb.load();
+      const jugador = {
+        nombre: document.getElementById('mNombre').value.trim(),
+        posicion: document.getElementById('mPosicion').value,
+        numero: document.getElementById('mNumero').value.trim(),
+        foto: document.getElementById('mFoto').value.trim() || 'logo.png',
+        apodo: document.getElementById('mBio').value.trim(),
+        partidos: 0,
+        puntos: 0
+      };
+      if (!jugador.nombre) { alert('El nombre es obligatorio'); return; }
+
+      if (idxEditando !== null) {
+        estado.miembros[idxEditando] = { ...estado.miembros[idxEditando], ...jugador };
+      } else {
+        estado.miembros.push(jugador);
+      }
+      await window.escDb.save(estado);
+      document.getElementById('modalMiembro').classList.remove('active');
+      cargarMiembros();
+    });
+
+    document.getElementById('btnSalirMiembros')?.addEventListener('click', async () => {
+      await window.escDb.clearSession();
+      window.location.href = 'login.html';
+    });
+    document.getElementById('btnPerfilMiembros')?.addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+    document.addEventListener('DOMContentLoaded', cargarMiembros);
+  </script>
+</body>
+</html>

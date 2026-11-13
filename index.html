@@ -8,6 +8,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .stat-card { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 1.5rem; text-align: center; box-shadow: var(--sombra); }
+    .stat-card .num { display: block; font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--dorado); }
+    .stat-card .lbl { font-size: 0.85rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.3rem; }
+    .chart-wrap { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--sombra); margin-top: 1.5rem; }
+    .chart-wrap h3 { margin-top: 0; font-size: 1.1rem; color: var(--dorado); margin-bottom: 1rem; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 0.9rem; height: 180px; padding-bottom: 1rem; }
+    .bar { flex: 1; background: var(--verde-frio); border-radius: 6px 6px 0 0; position: relative; transition: height 0.6s ease; }
+    .bar.won { background: linear-gradient(180deg, var(--verde-frio-claro), var(--verde-frio)); }
+    .bar.lost { background: #ef4444; }
+    .bar-label { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: var(--texto-suave); white-space: nowrap; }
+    .bar-value { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; font-weight: 700; color: var(--texto); }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .prox-card { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--sombra); }
+    .prox-card h3 { margin-top: 0; color: var(--dorado); font-size: 1.1rem; margin-bottom: 1rem; }
+    .prox-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--borde); font-size: 0.9rem; }
+    .prox-item:last-child { border-bottom: none; }
+    .prox-item .lbl { color: var(--texto-suave); }
+    .prox-item .val { font-weight: 700; color: var(--texto); }
+  </style>
 </head>
 <body>
 
@@ -25,7 +45,7 @@
       <div class="club-members" id="clubMembers">
         <span class="members-label">Plantilla</span>
         <div class="members-list" id="membersList"></div>
-        <button class="members-toggle" id="membersToggle" aria-label="Ver más miembros">+3</button>
+        <button class="members-toggle" id="membersToggle">+3</button>
       </div>
 
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
@@ -40,6 +60,7 @@
           <li><a class="nav-link" href="partidos.html">Partidos Finalizados</a></li>
           <li><a class="nav-link" href="puntuacion.html">Puntuación</a></li>
           <li><a class="nav-link" href="cronograma.html">Cronograma</a></li>
+          <li><a class="nav-link" href="miembros.html">Plantilla</a></li>
         </ul>
         <div class="nav-extra">
           <button class="btn-dark" id="themeToggle" aria-label="Cambiar tema">🌙</button>
@@ -48,7 +69,7 @@
     </div>
   </header>
 
-  <!-- ==================== HERO / INICIO ==================== -->
+  <!-- ==================== HERO ==================== -->
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="hero-badge">Entrenador Principal</div>
@@ -65,7 +86,45 @@
       <div class="hero-actions" style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
         <a href="informacion.html" class="btn-guardar">Ver Club</a>
         <a href="horarios.html" class="btn-guardar">Ver Horarios</a>
+        <a href="miembros.html" class="btn-guardar">Ver Plantilla</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <section class="container" style="padding:3rem 1.5rem;">
+    <h2 style="font-family:'Playfair Display', serif; color:var(--dorado); margin-bottom:1.5rem;">Resumen del Club</h2>
+
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <span class="num" id="dashTotal">0</span>
+        <span class="lbl">Partidos Jugados</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="dashGanados">0</span>
+        <span class="lbl">Partidos Ganados</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="dashPerdidos">0</span>
+        <span class="lbl">Partidos Perdidos</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="dashTasa">0%</span>
+        <span class="lbl">Tasa de Victorias</span>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Rendimiento por Resultado</h3>
+      <div class="bar-chart">
+        <div class="bar won" id="barGanados"><span class="bar-value">0</span><span class="bar-label">Ganados</span></div>
+        <div class="bar lost" id="barPerdidos"><span class="bar-value">0</span><span class="bar-label">Perdidos</span></div>
+      </div>
+    </div>
+
+    <div class="prox-card">
+      <h3>Próximas Actividades</h3>
+      <div id="proxActividades">Cargando...</div>
     </div>
   </section>
 
@@ -85,5 +144,53 @@
 
   <script src="js/db.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    async function renderDashboard() {
+      const estado = await window.escDb.load();
+      if (!estado) return;
+
+      const partidos = estado.partidos || [];
+      const total = partidos.length;
+      const ganados = partidos.filter(p => p.estado === 'ganado').length;
+      const perdidos = partidos.filter(p => p.estado === 'perdido').length;
+      const tasa = total > 0 ? Math.round((ganados / total) * 100) : 0;
+
+      document.getElementById('dashTotal').textContent = total;
+      document.getElementById('dashGanados').textContent = ganados;
+      document.getElementById('dashPerdidos').textContent = perdidos;
+      document.getElementById('dashTasa').textContent = tasa + '%';
+
+      const max = Math.max(ganados, perdidos, 1);
+      const barG = document.getElementById('barGanados');
+      const barP = document.getElementById('barPerdidos');
+      barG.style.height = (ganados / max * 100) + '%';
+      barP.style.height = (perdidos / max * 100) + '%';
+      barG.querySelector('.bar-value').textContent = ganados;
+      barP.querySelector('.bar-value').textContent = perdidos;
+
+      // Próximas actividades del cronograma (esta semana)
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      const fin = new Date(hoy); fin.setDate(hoy.getDate() + 6);
+      const proximas = (estado.cronograma || [])
+        .filter(c => { const f = new Date(c.fecha); return f >= hoy && f <= fin; })
+        .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+
+      const cont = document.getElementById('proxActividades');
+      if (proximas.length === 0) {
+        cont.innerHTML = '<p style="color:var(--texto-suave); text-align:center; padding:1rem">No hay actividades programadas esta semana.</p>';
+      } else {
+        const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
+        cont.innerHTML = proximas.map(c => {
+          const f = new Date(c.fecha);
+          return `<div class="prox-item">
+            <span class="lbl">${f.toLocaleDateString('es-ES', opciones)} ${c.hora}</span>
+            <span class="val">${c.titulo}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderDashboard);
+  </script>
 </body>
 </html>
