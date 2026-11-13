@@ -37,6 +37,7 @@
           <li><a class="nav-link active" href="puntuacion.html">Puntuación</a></li>
           <li><a class="nav-link" href="cronograma.html">Cronograma</a></li>
           <li><a class="nav-link" href="miembros.html">Plantilla</a></li>
+          <li><a class="nav-link" href="noticias.html">Noticias</a></li>
         </ul>
         <div class="nav-extra"><button class="btn-dark" id="themeToggle">🌙</button></div>
       </nav>
@@ -53,6 +54,8 @@
           <input type="number" id="ptsRival" placeholder="Puntos Rival" min="0" />
           <select id="nuevaCompeticion"><option value="Liga">Liga</option><option value="Amistoso">Amistoso</option><option value="Playoff">Playoff</option></select>
           <button class="btn-guardar" id="guardarPartido">Registrar Partido</button>
+          <button class="btn-dark" id="btnImportar" style="margin-left:0.75rem;">📤 Importar JSON</button>
+          <input type="file" id="fileImportar" accept=".json" style="display:none" />
         </div>
         <div class="table-wrapper">
           <table class="data-table" id="tablaPuntuacion">

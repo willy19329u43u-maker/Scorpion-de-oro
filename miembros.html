@@ -131,10 +131,11 @@
           <td>${m.partidos || 0}</td>
           <td>${m.puntos || 0}</td>
           <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="btn-dark" style="padding:0.3rem 0.6rem; font-size:0.8rem; background:transparent; color:var(--dorado); border-color:var(--dorado);" onclick="appVerMiembro(${i})">Ver</button>
             ${esCoach ? `
               <button class="btn-guardar" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="appEditarMiembro(${i})">Editar</button>
               <button class="btn-dark" style="padding:0.3rem 0.6rem; font-size:0.8rem; background:transparent; color:#ef4444; border-color:#ef4444;" onclick="appEliminarMiembro(${i})">Eliminar</button>
-            ` : '<span style="color:var(--texto-suave); font-size:0.75rem;">Solo Coach</span>'}
+            ` : ''}
           </td>
         </tr>
       `).join('');
@@ -201,6 +202,21 @@
       document.getElementById('modalMiembro').classList.remove('active');
       cargarMiembros();
     });
+
+    window.appVerMiembro = (i) => {
+      const m = estadoMiembrosCache?.[i];
+      if (!m) return;
+      alert(`🏀 ${m.nombre}\n\nPosición: ${m.posicion || 'Sin asignar'}\nNúmero: ${m.numero || '-'}\nPartidos: ${m.partidos || 0}\nPuntos: ${m.puntos || 0}\nApodo: ${m.apodo || 'Sin apodo'}`);
+    };
+
+    let estadoMiembrosCache = null;
+
+    const _cargarMiembrosOrig = cargarMiembros;
+    cargarMiembros = async function() {
+      const estado = await window.escDb.load();
+      estadoMiembrosCache = estado.miembros || [];
+      await _cargarMiembrosOrig();
+    };
 
     document.getElementById('btnSalirMiembros')?.addEventListener('click', async () => {
       await window.escDb.clearSession();

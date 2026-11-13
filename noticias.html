@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Noticias | Escorpión de Oro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .news-form { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--sombra); }
+    .news-form h3 { margin-top: 0; color: var(--dorado); font-size: 1.1rem; margin-bottom: 1rem; }
+    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .news-card { background: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--sombra); transition: var(--transicion); }
+    .news-card:hover { border-color: var(--dorado); transform: translateY(-3px); }
+    .news-card h4 { color: var(--texto); margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .news-card .news-date { font-size: 0.8rem; color: var(--texto-suave); margin-bottom: 0.75rem; display: block; }
+    .news-card p { color: var(--texto-suave); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; }
+    .news-card .news-actions { display: flex; gap: 0.5rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+    .news-img-preview { width: 100%; height: 150px; border-radius: 8px; object-fit: cover; background: var(--fondo-input); border: 1px solid var(--borde); margin-top: 0.5rem; display: none; }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="mainHeader">
+    <div class="container header-inner">
+      <div class="logo">
+        <img src="logo.png" alt="Logo Escorpión de Oro" onerror="this.style.display='none'"/>
+        <div class="logo-text">
+          <span class="logo-main">ESCORPIÓN DE ORO</span>
+          <span class="logo-sub">Club de Baloncesto</span>
+        </div>
+      </div>
+      <div class="nav-extra">
+        <button class="btn-dark" id="btnPerfilNoticias">Perfil</button>
+        <button class="btn-dark" id="btnSalirNoticias">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding:3rem 1.5rem;">
+    <div class="panel-header" style="margin-bottom:1.5rem; align-items:center;">
+      <h2>Noticias del Club</h2>
+      <button class="btn-guardar" id="btnNuevaNoticia" style="padding:0.55rem 1.1rem; font-size:0.9rem; margin-left:auto;">+ Nueva Noticia</button>
+    </div>
+
+    <!-- Formulario Nueva Noticia -->
+    <div class="news-form" id="formNoticiaBox" style="display:none;">
+      <h3>✍️ Escribir Noticia</h3>
+      <form id="formNoticia">
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" id="nTitulo" required placeholder="Ej: Victoria importante vs Halcones" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Categoría</label>
+            <select id="nCategoria">
+              <option value="General">General</option>
+              <option value="Partido">Resultado de Partido</option>
+              <option value="Entrenamiento">Entrenamiento</option>
+              <option value="Evento">Evento</option>
+              <option value="Anuncio">Anuncio Importante</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Imagen (nombre de archivo)</label>
+            <input type="text" id="nImagen" placeholder="WhatsApp Image 2026-11-12 at 16.20.45 (3).jpeg" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Contenido</label>
+          <textarea id="nContenido" rows="5" required placeholder="Cuenta lo que pasó..."></textarea>
+        </div>
+        <img id="nPreview" class="news-img-preview" />
+        <div class="form-actions">
+          <button type="button" class="btn-dark" id="btnCancelarNoticia">Cancelar</button>
+          <button type="submit" class="btn-guardar">Publicar Noticia</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="news-grid" id="noticiasGrid"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand"><span class="logo-main">ESCORPIÓN DE ORO</span><p>Pasión y orgullo en cada jugada.</p></div>
+      <div class="footer-copy"><p>© 2026 Escorpión de Oro. Todos los derechos reservados.</p></div>
+    </div>
+  </footer>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let idxEditandoNoticia = null;
+
+    async function cargarNoticias() {
+      const estado = await window.escDb.load();
+      const grid = document.getElementById('noticiasGrid');
+      const sesion = await window.escDb.getSession();
+      const esCoach = sesion && sesion.rol === 'coach';
+      if (!estado || !estado.noticias) {
+        grid.innerHTML = '<p style="color:var(--texto-suave); text-align:center; padding:2rem">No hay noticias aún.</p>';
+        return;
+      }
+      const noticias = [...estado.noticias].reverse();
+      grid.innerHTML = noticias.map((n, i) => `
+        <div class="news-card">
+          ${n.imagen ? `<img src="${n.imagen}" class="news-img-preview" style="display:block;" onerror="this.style.display='none'">` : ''}
+          <span class="news-date">${n.fecha} • ${n.categoria}</span>
+          <h4>${n.titulo}</h4>
+          <p>${n.contenido}</p>
+          <div class="news-actions">
+            ${esCoach ? `
+              <button class="btn-guardar" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="appEditarNoticia(${i})">Editar</button>
+              <button class="btn-dark" style="padding:0.3rem 0.6rem; font-size:0.8rem; background:transparent; color:#ef4444; border-color:#ef4444;" onclick="appEliminarNoticia(${i})">Eliminar</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.appEditarNoticia = async (i) => {
+      const estado = await window.escDb.load();
+      const noticias = [...estado.noticias].reverse();
+      const n = noticias[i];
+      const idxOriginal = estado.noticias.findIndex(x => x.titulo === n.titulo && x.fecha === n.fecha);
+      idxEditandoNoticia = idxOriginal;
+      document.getElementById('formNoticiaBox').style.display = 'block';
+      document.getElementById('formNoticiaBox').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('nTitulo').value = n.titulo;
+      document.getElementById('nCategoria').value = n.categoria;
+      document.getElementById('nImagen').value = n.imagen || '';
+      document.getElementById('nContenido').value = n.contenido;
+      document.getElementById('nPreview').src = n.imagen || '';
+      document.getElementById('nPreview').style.display = n.imagen ? 'block' : 'none';
+    };
+
+    window.appEliminarNoticia = async (i) => {
+      if (!confirm('¿Eliminar esta noticia?')) return;
+      const estado = await window.escDb.load();
+      const noticias = [...estado.noticias].reverse();
+      const n = noticias[i];
+      const idxOriginal = estado.noticias.findIndex(x => x.titulo === n.titulo && x.fecha === n.fecha);
+      estado.noticias.splice(idxOriginal, 1);
+      await window.escDb.save(estado);
+      cargarNoticias();
+    };
+
+    document.getElementById('btnNuevaNoticia')?.addEventListener('click', () => {
+      idxEditandoNoticia = null;
+      document.getElementById('formNoticiaBox').style.display = 'block';
+      document.getElementById('formNoticiaBox').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('formNoticia').reset();
+      document.getElementById('nPreview').style.display = 'none';
+    });
+
+    document.getElementById('btnCancelarNoticia')?.addEventListener('click', () => {
+      document.getElementById('formNoticiaBox').style.display = 'none';
+    });
+
+    document.getElementById('nImagen')?.addEventListener('input', (e) => {
+      const prev = document.getElementById('nPreview');
+      prev.src = e.target.value || '';
+      prev.style.display = e.target.value ? 'block' : 'none';
+    });
+
+    document.getElementById('formNoticia')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const estado = await window.escDb.load();
+      const noticia = {
+        titulo: document.getElementById('nTitulo').value.trim(),
+        categoria: document.getElementById('nCategoria').value,
+        imagen: document.getElementById('nImagen').value.trim(),
+        contenido: document.getElementById('nContenido').value.trim(),
+        fecha: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+      };
+      if (!noticia.titulo || !noticia.contenido) { alert('Título y contenido son obligatorios'); return; }
+      if (!estado.noticias) estado.noticias = [];
+      if (idxEditandoNoticia !== null) {
+        estado.noticias[idxEditandoNoticia] = noticia;
+      } else {
+        estado.noticias.push(noticia);
+      }
+      await window.escDb.save(estado);
+      document.getElementById('formNoticiaBox').style.display = 'none';
+      cargarNoticias();
+    });
+
+    document.getElementById('btnSalirNoticias')?.addEventListener('click', async () => {
+      await window.escDb.clearSession();
+      window.location.href = 'login.html';
+    });
+    document.getElementById('btnPerfilNoticias')?.addEventListener('click', () => { window.location.href = 'profile.html'; });
+
+    document.addEventListener('DOMContentLoaded', cargarNoticias);
+  </script>
+</body>
+</html>

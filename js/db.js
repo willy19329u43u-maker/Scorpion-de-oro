@@ -204,6 +204,41 @@ async function dbInitDefaultUsers() {
     }
   ];
 
+  const defaultNoticias = [
+    {
+      titulo: 'Victoria importante vs Halcones Sur',
+      categoria: 'Partido',
+      imagen: '',
+      contenido: 'Gran trabajo del equipo logrando una victoria clave en casa. Destacó la defensa en el último cuarto.',
+      fecha: '10 nov 2026'
+    },
+    {
+      titulo: 'Nuevo integrante en la plantilla',
+      categoria: 'General',
+      imagen: '',
+      contenido: 'Bienvenido a nuestro nuevo jugador J. Navarro, quien se une como Base para esta temporada.',
+      fecha: '05 nov 2026'
+    },
+    {
+      titulo: 'Entrenamiento de pretemporada',
+      categoria: 'Entrenamiento',
+      imagen: '',
+      contenido: 'Comenzamos los entrenamientos de pretemporada con énfasis en condición física y tiro de tres puntos.',
+      fecha: '28 oct 2026'
+    }
+  ];
+
+  async function dbInitDefaultNoticias() {
+    const estado = await dbLoad();
+    if (!estado) return;
+    if (!estado.noticias || estado.noticias.length === 0) {
+      estado.noticias = defaultNoticias;
+      await dbSave(estado);
+    }
+  }
+
+  window.escDb.initDefaultNoticias = dbInitDefaultNoticias;
+
   for (const u of defaultUsers) {
     const yaExiste = existentes.find(e => e.email === u.email || e.username === u.username);
     if (!yaExiste) {

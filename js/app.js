@@ -86,6 +86,7 @@
     }
 
     await window.escDb.initDefaultUsers();
+    await window.escDb.initDefaultNoticias();
     renderHeaderSesion();
   }
 
@@ -131,7 +132,7 @@
 
     if ($('#horariosBody')) renderHorarios();
     if ($('#partidosBody')) { renderPartidos(); setupBusquedaPartidos(); }
-    if ($('#puntuacionBody')) { renderPuntuacion(); setupGuardarPartido(); setupExportar(); }
+    if ($('#puntuacionBody')) { renderPuntuacion(); setupGuardarPartido(); setupExportar(); setupImportar(); }
     if ($('#cronogramaGrid')) { renderCronograma(); setupCronogramaModal(); }
     if ($('#formAgendar')) setupCronogramaModal();
 
@@ -344,6 +345,32 @@
   }
 
   /* ---------- Exportar datos ---------- */
+  function setupImportar() {
+    const btn = $('#btnImportar');
+    const input = $('#fileImportar');
+    if (!btn || !input) return;
+    btn.addEventListener('click', () => input.click());
+    input.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const datos = JSON.parse(ev.target.result);
+          await window.escDb.save(datos);
+          estado = datos;
+          renderPartidos();
+          renderPuntuacion();
+          renderCronograma();
+          toast('Datos importados correctamente', 'success');
+        } catch (err) {
+          toast('Error al importar archivo', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
   function setupExportar() {
     const btnExportar = document.createElement('button');
     btnExportar.className = 'btn-dark';
