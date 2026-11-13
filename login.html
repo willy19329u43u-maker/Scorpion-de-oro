@@ -9,12 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
   <style>
+    /* Fondo de la página */
     .login-page {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, var(--verde-frio-oscuro) 0%, var(--fondo) 70%);
+      background: radial-gradient(circle at center, #0b4a3e 0%, #08100c 70%);
       padding: 2rem;
       position: relative;
       overflow: hidden;
@@ -24,55 +25,92 @@
       position: absolute;
       top: -10%;
       left: -10%;
-      width: 100%;
+      width: 120%;
       height: 120%;
-      background: radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.15), transparent 40%);
+      background: radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.12), transparent 45%);
       pointer-events: none;
+      z-index: 0;
     }
+
+    /* Contenedor principal centrado */
+    .login-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Logo más pequeño, a la izquierda del título */
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      border: 3px solid var(--dorado);
+      object-fit: cover;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.35);
+      flex-shrink: 0;
+    }
+    .login-brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .login-brand h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: var(--dorado);
+      margin: 0;
+      letter-spacing: 1.5px;
+      line-height: 1.1;
+    }
+    .login-brand span {
+      font-size: 0.85rem;
+      color: var(--texto-suave);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Cuadro del formulario */
     .login-card {
       background: var(--fondo-tarjeta);
       border: 1px solid var(--borde);
-      border-radius: 20px;
-      padding: 3rem 2.5rem;
-      max-width: 420px;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
       width: 100%;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      position: relative;
-      z-index: 1;
-      animation: slideUp 0.6s ease-out;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.5s ease-out;
     }
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .login-header {
+
+    .form-title {
       text-align: center;
-      margin-bottom: 2.5rem;
-    }
-    .login-logo {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      border: 4px solid var(--dorado);
-      object-fit: cover;
-      margin-bottom: 1.2rem;
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-    }
-    .login-header h1 {
+      margin-bottom: 1.8rem;
+      color: var(--texto);
       font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: var(--dorado);
-      margin-bottom: 0.4rem;
-      letter-spacing: 2px;
+      font-size: 1.4rem;
     }
-    .login-header p {
+    .form-subtitle {
+      text-align: center;
       color: var(--texto-suave);
-      font-size: 0.95rem;
-      font-weight: 400;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
     }
+
     .form-group {
-      margin-bottom: 1.4rem;
-      position: relative;
+      margin-bottom: 1.25rem;
     }
     .form-group label {
       display: block;
@@ -80,35 +118,47 @@
       font-weight: 700;
       color: var(--texto-suave);
       font-size: 0.85rem;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
     }
-    .form-group input {
+    .input-wrapper {
+      position: relative;
+    }
+    .input-wrapper input {
       width: 100%;
       background: var(--fondo-input);
       border: 2px solid var(--borde);
       color: var(--texto);
-      padding: 0.9rem 1rem;
+      padding: 0.85rem 1rem 0.85rem 2.8rem;
       border-radius: 10px;
       font-family: inherit;
-      font-size: 1rem;
+      font-size: 0.95rem;
       box-sizing: border-box;
       transition: all 0.3s ease;
     }
-    .form-group input:focus {
+    .input-wrapper input:focus {
       outline: none;
       border-color: var(--dorado);
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
     }
-    .form-group input::placeholder {
+    .input-wrapper input::placeholder {
       color: #6b7280;
     }
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--texto-suave);
+      font-size: 1.1rem;
+    }
+
     .btn-login {
       width: 100%;
       background: linear-gradient(135deg, var(--dorado) 0%, #f5e07a 100%);
       color: #1a1a10;
       border: none;
-      padding: 1rem;
+      padding: 0.95rem;
       border-radius: 10px;
       font-weight: 800;
       font-size: 1rem;
@@ -117,6 +167,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      margin-top: 0.5rem;
     }
     .btn-login:hover {
       transform: translateY(-2px);
@@ -126,6 +177,7 @@
     .btn-login:active {
       transform: translateY(0);
     }
+
     .login-divider {
       display: flex;
       align-items: center;
@@ -140,22 +192,9 @@
       height: 1px;
       background: var(--borde);
     }
-    .login-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      color: var(--texto-suave);
-      font-size: 0.85rem;
-    }
-    .login-footer a {
-      color: var(--dorado);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .login-footer a:hover {
-      text-decoration: underline;
-    }
+
     .cuentas-prueba {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       padding: 1.2rem;
       background: var(--fondo-input);
       border: 1px solid var(--borde);
@@ -163,18 +202,19 @@
     }
     .cuentas-prueba h4 {
       color: var(--dorado);
-      font-size: 0.9rem;
-      margin-bottom: 0.8rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      text-align: center;
     }
     .cuenta-item {
       display: flex;
       justify-content: space-between;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--texto-suave);
-      margin-bottom: 0.4rem;
-      padding-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
+      padding-bottom: 0.35rem;
       border-bottom: 1px solid rgba(255,255,255,0.03);
     }
     .cuenta-item:last-child { border-bottom: none; margin-bottom: 0; }
@@ -182,36 +222,55 @@
       color: var(--texto);
       font-weight: 700;
     }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 2rem 1.5rem; }
+      .login-brand h1 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
 
   <div class="login-page">
-    <div class="login-card">
-      <div class="login-header">
+    <div class="login-wrapper">
+      <div class="login-brand">
         <img src="logo.png" alt="Logo Escorpión de Oro" class="login-logo" onerror="this.style.display='none'"/>
-        <h1>Escorpión de Oro</h1>
-        <p>Bienvenido al área privada del club</p>
+        <div class="login-brand-text">
+          <h1>Escorpión de Oro</h1>
+          <span>Club de Baloncesto</span>
+        </div>
       </div>
 
-      <form id="formLogin">
-        <div class="form-group">
-          <label>Nombre de usuario</label>
-          <input type="text" id="loginUsername" placeholder="ej: coach_escorpion" required />
-        </div>
-        <div class="form-group">
-          <label>Contraseña</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required />
-        </div>
-        <button type="submit" class="btn-login">Ingresar al Club</button>
-      </form>
+      <div class="login-card">
+        <div class="form-title">Iniciar Sesión</div>
+        <div class="form-subtitle">Accede con tu usuario y contraseña</div>
 
-      <div class="login-divider">O</div>
+        <form id="formLogin">
+          <div class="form-group">
+            <label>Usuario</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" id="loginUsername" placeholder="ej: coach" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="loginPassword" placeholder="••••••••" required />
+            </div>
+          </div>
+          <button type="submit" class="btn-login">Ingresar</button>
+        </form>
 
-      <div class="cuentas-prueba">
-        <h4>Cuentas de prueba</h4>
-        <div class="cuenta-item"><strong>Coach:</strong> <span>coach / coach123</span></div>
-        <div class="cuenta-item"><strong>Miembro:</strong> <span>miembro / miembro123</span></div>
+        <div class="login-divider">O</div>
+
+        <div class="cuentas-prueba">
+          <h4>Cuentas de prueba</h4>
+          <div class="cuenta-item"><strong>Coach:</strong> <span>coach / coach123</span></div>
+          <div class="cuenta-item"><strong>Miembro:</strong> <span>miembro / miembro123</span></div>
+          <div class="cuenta-item"><strong>Jugador:</strong> <span>jugador2 / miembro123</span></div>
+        </div>
       </div>
     </div>
   </div>
