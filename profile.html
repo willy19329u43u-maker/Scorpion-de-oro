@@ -34,7 +34,7 @@
           <div class="profile-info">
             <h2 id="profileNombre">Usuario</h2>
             <span class="profile-rol" id="profileRol">Rol</span>
-            <p id="profileEmail">email@ejemplo.com</p>
+            <p id="profileEmail">@usuario</p>
           </div>
           <button class="btn-guardar" id="btnCerrarSesionPerfil">Cerrar Sesión</button>
         </div>
@@ -81,7 +81,7 @@
       document.getElementById('profileNombre').textContent = usuario.nombre;
       document.getElementById('profileRol').textContent = usuario.rol === 'coach' ? 'Entrenador (Coach)' : 'Miembro del club';
       document.getElementById('profileRol').className = 'profile-rol ' + usuario.rol;
-      document.getElementById('profileEmail').textContent = usuario.email;
+      document.getElementById('profileEmail').textContent = '@' + (usuario.username || usuario.email);
       document.getElementById('profileBio').textContent = usuario.bio || 'Sin descripción.';
       document.getElementById('profileFoto').src = usuario.foto || 'logo.png';
 

@@ -178,6 +178,7 @@ async function dbInitDefaultUsers() {
 
   const defaultUsers = [
     {
+      username: 'coach',
       email: 'coach@escorpionoro.com',
       password: 'coach123',
       nombre: 'Mateo Rivas',
@@ -186,6 +187,7 @@ async function dbInitDefaultUsers() {
       bio: 'Entrenador principal del club Escorpión de Oro.'
     },
     {
+      username: 'miembro',
       email: 'jugador1@escorpionoro.com',
       password: 'miembro123',
       nombre: 'J. Navarro',
@@ -194,6 +196,7 @@ async function dbInitDefaultUsers() {
       bio: 'Base - Plantilla Escorpión de Oro'
     },
     {
+      username: 'jugador2',
       email: 'jugador2@escorpionoro.com',
       password: 'miembro123',
       nombre: 'L. Méndez',
